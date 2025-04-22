@@ -55,7 +55,9 @@
       // Push new profile
       const ref = await db.ref('profiles').push({ name, address, photo });
       const id = ref.key;
-      const link = `${location.origin}/card.html?id=${id}`;
+      // Build absolute link to card.html in same directory
+      const basePath = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+      const link = `${basePath}card.html?id=${id}`;
       // Generate QR
       const qrEl = document.getElementById('qr');
       qrEl.innerHTML = '';
