@@ -1,4 +1,3 @@
-
 <!-- Card: card.html -->
 <!DOCTYPE html>
 <html lang="en">
@@ -41,20 +40,22 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const params = new URLSearchParams(location.search);
+    // Read profile ID from URL
+    const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) {
       alert('Profile ID missing');
       throw new Error('Missing ID');
     }
-    db.ref('profiles/' + id).once('value').then(snapshot => {
+    // Fetch profile data
+    db.ref(`profiles/${id}`).once('value').then(snapshot => {
       const data = snapshot.val();
       document.getElementById('name').textContent = data.name;
       document.getElementById('address').textContent = data.address;
       document.getElementById('photo').src = data.photo;
-      // Generate QR for this card URL
+      // Generate QR for this card's URL
       const qrEl = document.getElementById('qr');
-      new QRCode(qrEl, { text: location.href, width: 200, height: 200 });
+      new QRCode(qrEl, { text: window.location.href, width: 200, height: 200 });
     });
   </script>
 </body>
