@@ -1,0 +1,86 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Web Profile QR Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    /* same styling as before */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: linear-gradient(135deg, #f0f4ff, #e0e7ff); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; text-align: center; }
+    .card h1 { margin-bottom: 24px; font-size: 1.6rem; }
+    label { display: block; text-align: left; margin: 8px 0 4px; font-weight: 600; }
+    input { width: 100%; padding: 12px; margin-bottom: 12px; border: none; border-radius: 8px; background: rgba(255,255,255,0.6); backdrop-filter: blur(5px); }
+    button { width: 100%; padding: 14px; margin-top: 8px; border: none; border-radius: 8px; background: linear-gradient(135deg, #a1c4fd, #c2e9fb); font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    button:hover { transform: translateY(-2px); }
+    #qrDashboard { margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Dashboard: Create Profile QR</h1>
+    <label>Name *</label>
+    <input type="text" id="nameInput" placeholder="Your Name" />
+    <label>Address *</label>
+    <input type="text" id="addressInput" placeholder="Your Address" />
+    <label>WhatsApp (optional)</label>
+    <input type="tel" id="phoneInput" placeholder="+1234567890" />
+    <label>X (optional)</label>
+    <input type="text" id="xInput" placeholder="username" />
+    <label>Instagram (optional)</label>
+    <input type="text" id="instagramInput" placeholder="username" />
+    <label>Email (optional)</label>
+    <input type="email" id="emailInput" placeholder="you@example.com" />
+    <label>Profile Photo *</label>
+    <input type="file" accept="image/*" id="photoInput" />
+    <button id="generateBtn">Generate QR &amp; Link</button>
+    <div id="qrDashboard"></div>
+    <a id="cardLink" href="#" target="_blank" style="display:none; margin-top:12px; font-weight:600;">Go to Card Page</a>
+  </div>
+
+  <script>
+    const generateBtn = document.getElementById('generateBtn');
+    const qrDashboard = document.getElementById('qrDashboard');
+    const cardLink = document.getElementById('cardLink');
+
+    generateBtn.addEventListener('click', () => {
+      const name = document.getElementById('nameInput').value.trim();
+      const address = document.getElementById('addressInput').value.trim();
+      const phone = document.getElementById('phoneInput').value.trim();
+      const x = document.getElementById('xInput').value.trim();
+      const instagram = document.getElementById('instagramInput').value.trim();
+      const email = document.getElementById('emailInput').value.trim();
+      const photoFile = document.getElementById('photoInput').files[0];
+
+      if (!name || !address || !photoFile) {
+        alert('Name, Address, and Photo are required');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const params = new URLSearchParams();
+        params.append('name', name);
+        params.append('address', address);
+        params.append('photo', reader.result);
+        if (phone) params.append('phone', phone);
+        if (x) params.append('x', x);
+        if (instagram) params.append('instagram', instagram);
+        if (email) params.append('email', email);
+
+        // Unique link to card.html
+        const link = `${window.location.origin}/card.html?${params.toString()}`;
+        cardLink.href = link;
+        cardLink.style.display = 'inline-block';
+        cardLink.textContent = 'View Your Card';
+
+        // generate QR
+        qrDashboard.innerHTML = '';
+        new QRCode(qrDashboard, { text: link, width: 200, height: 200 });
+      };
+      reader.readAsDataURL(photoFile);
+    });
+  </script>

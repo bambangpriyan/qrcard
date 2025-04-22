@@ -1,0 +1,88 @@
+
+
+<!-- card.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile Card</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    /* reuse same card styling */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: linear-gradient(135deg, #f0f4ff, #e0e7ff); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { position: relative; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 80px 24px 24px; width: 100%; max-width: 400px; text-align: center; }
+    .card h1 { margin-bottom: 24px; font-size: 1.6rem; }
+    p { margin-bottom: 12px; }
+    .socials { display: flex; justify-content: center; gap: 16px; margin: 16px 0; }
+    .socials a { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.8); border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .socials a:hover { transform: translateY(-2px); background: rgba(255,255,255,1); }
+    .socials svg { width: 20px; height: 20px; fill: #333; }
+    #qrCard { margin: 20px auto; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img id="previewPhoto" src="" alt="Profile Photo" />
+    <h1 id="previewName"></h1>
+    <p id="previewAddress"></p>
+    <div id="socials" class="socials"></div>
+    <div id="qrCard"></div>
+  </div>
+
+  <script>
+    const icons = {
+      whatsapp: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382...Z"/></svg>',
+      x: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M12.6...Z"/></svg>',
+      instagram: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163...Z"/></svg>',
+      email: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4...Z"/></svg>'
+    };
+
+    function createSocialLink(type, value) {
+      let url;
+      switch(type) {
+        case 'whatsapp': url = 'https://wa.me/' + encodeURIComponent(value); break;
+        case 'x': url = 'https://x.com/' + encodeURIComponent(value); break;
+        case 'instagram': url = 'https://instagram.com/' + encodeURIComponent(value); break;
+        case 'email': url = 'mailto:' + encodeURIComponent(value); break;
+      }
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.innerHTML = icons[type];
+      document.getElementById('socials').appendChild(a);
+    }
+
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.get('name') || !params.get('address') || !params.get('photo')) {
+        document.body.innerHTML = '<p>Invalid or missing data.</p>';
+        return;
+      }
+
+      document.getElementById('previewPhoto').src = params.get('photo');
+      document.getElementById('previewName').textContent = params.get('name');
+      document.getElementById('previewAddress').textContent = params.get('address');
+
+      ['phone','x','instagram','email'].forEach(key => {
+        if (params.get(key)) createSocialLink(key, params.get(key));
+      });
+
+      // generate QR as image
+      const link = window.location.href;
+      const qrContainer = document.getElementById('qrCard');
+      const qr = new QRCode(qrContainer, { text: link, width: 200, height: 200 });
+      setTimeout(() => {
+        const canvas = qrContainer.querySelector('canvas');
+        if (canvas) {
+          const img = document.createElement('img');
+          img.src = canvas.toDataURL();
+          qrContainer.innerHTML = '';
+          qrContainer.appendChild(img);
+        }
+      }, 300);
+    });
+  </script>
+</body>
+</html>
